@@ -46,6 +46,7 @@ public enum ResponseCode {
     INTERNAL_SERVER_LOGIC_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500_2", "서버측 로직 에러"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500_3", "서버 에러, 반드시 백엔드 호출할것!"),
     OPTIMISTIC_LOCKING_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "500_4", "낙관적 락 발~동!"),
+    INTERNAL_SERVER_WEBCLIENT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500_5", "WebClient 에러"),
     ;
 
     private final HttpStatus status;
