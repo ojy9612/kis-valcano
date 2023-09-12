@@ -2,6 +2,8 @@ package com.zeki.kisvolcano.domain._common.web_client;
 
 import com.zeki.kisvolcano.config.PropertiesMapping;
 import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
+import com.zeki.kisvolcano.exception.APIException;
+import com.zeki.kisvolcano.exception.ResponseCode;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -107,7 +109,7 @@ public class WebClientCreator {
                     .protocols("TLSv1.3")
                     .build();
         } catch (SSLException e) {
-            throw new RuntimeException(e);
+            throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR, e.getMessage());
         }
 
         final HttpClient httpClientForTls13 = HttpClient.create(provider)
@@ -153,7 +155,7 @@ public class WebClientCreator {
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
                     .build();
         } catch (SSLException e) {
-            throw new RuntimeException(e);
+            throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR, "SSL 설정 오류");
         }
 
         ReactorClientHttpConnector reactorClientHttpConnector = new ReactorClientHttpConnector(

@@ -7,6 +7,8 @@ import com.zeki.kisvolcano.config.PropertiesMapping;
 import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
 import com.zeki.kisvolcano.domain.kis.token.repository.TokenRepository;
 import com.zeki.kisvolcano.domain.kis.token.entity.Token;
+import com.zeki.kisvolcano.exception.APIException;
+import com.zeki.kisvolcano.exception.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -64,7 +66,7 @@ public class TokenService {
                             .build().getBody()
             );
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new APIException(ResponseCode.INTERNAL_SERVER_ERROR, "JosnNode 파싱 실패");
         }
 
         Token t = Token.builder()

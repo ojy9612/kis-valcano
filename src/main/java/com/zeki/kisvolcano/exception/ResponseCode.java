@@ -17,6 +17,7 @@ public enum ResponseCode {
     /* 400 */
     BINDING_FAILED(HttpStatus.BAD_REQUEST, "400_0", "유효성 검사 실패"),
     REQUIRED_BODY(HttpStatus.BAD_REQUEST, "400_1", "Request Body가 필요합니다."),
+    FAIL_TO_READ_PROFILE(HttpStatus.BAD_REQUEST, "400_2", "유효한 Profile이 아닙니다."),
 
     /* 401 */
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "401_0", "비밀번호가 일치하지 않습니다."),

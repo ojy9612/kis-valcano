@@ -7,6 +7,8 @@ import com.zeki.kisvolcano.domain.kis.stock.entity.StockCode;
 import com.zeki.kisvolcano.domain.kis.stock.entity.StockInfo;
 import com.zeki.kisvolcano.domain.kis.stock.repository.StockInfoRepository;
 import com.zeki.kisvolcano.domain.kis.token.service.TokenService;
+import com.zeki.kisvolcano.exception.APIException;
+import com.zeki.kisvolcano.exception.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -112,7 +114,7 @@ public class StockInfoService {
                             .build();
                 }
             } else {
-                throw new RuntimeException("KIS 통신 에러" + response.getRtCd() + response.getMsg1() + response.getMsgCd());
+                throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR,"KIS 통신 에러" + response.getRtCd() + response.getMsg1() + response.getMsgCd());
             }
             /* ----- */
         }

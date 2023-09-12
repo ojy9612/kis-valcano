@@ -1,6 +1,8 @@
 package com.zeki.kisvolcano.config;
 
 import com.zeki.kisvolcano.domain._common.em.TradeMode;
+import com.zeki.kisvolcano.exception.APIException;
+import com.zeki.kisvolcano.exception.ResponseCode;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,7 +56,7 @@ public class PropertiesMapping {
 
 
     @PostConstruct
-    public void init() throws IllegalAccessException {
+    public void init() {
         mode = TradeMode.getTradeMode(tempMode);
 
         if (mode.equals(TradeMode.TRAIN)) {
@@ -70,7 +72,7 @@ public class PropertiesMapping {
             appSecret = realAppsecert;
             accountNum = realAccountNum;
         } else {
-            throw new IllegalAccessException("허용되지 않은 mode 입니다. - " + tempMode);
+            throw new APIException(ResponseCode.FAIL_TO_READ_PROFILE,"허용되지 않은 mode 입니다. - " + tempMode);
         }
 
     }
