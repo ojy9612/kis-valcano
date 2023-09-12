@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class ApiStatics {
     private Webhook webhook;
+    private Kis kis;
+    private DataGo dataGo;
 
     @Getter
     @Setter
@@ -18,5 +20,22 @@ public class ApiStatics {
         private String url;
         private String key;
         private String token;
+    }
+
+    @Getter
+    @Setter
+    public static class Kis {
+        private String url;
+        private String appKey;
+        private String appSecret;
+        private String accountNumber;
+    }
+
+    @Getter
+    @Setter
+    public static class DataGo {
+        private String url;
+        private String encoding;
+        private String decoding;
     }
 }
