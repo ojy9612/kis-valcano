@@ -42,9 +42,14 @@ public class StockCodeService {
 
         while (totalCount > 1000 * (pageNo - 1)) {
             reqParam.set("pageNo", String.valueOf(pageNo));
-            response = webClientDataGoKrConnectorStockCodeResDto.connect(HttpMethod.GET,
-                    "1160100/service/GetKrxListedInfoService/getItemInfo",
-                    null, reqParam, null, StockCodeResDto.class);
+            response = webClientConnector.<Void,StockCodeResDto>connectDataGoApiBuilder()
+                    .method(HttpMethod.GET)
+                    .path("1160100/service/GetKrxListedInfoService/getItemInfo")
+                    .requestHeaders(null)
+                    .requestParams(reqParam)
+                    .requestBody(null)
+                    .classType(StockCodeResDto.class)
+                    .build().getBody();
 
             totalCount = response.getResponse().getBody().getTotalcount();
             pageNo++;

@@ -1,5 +1,6 @@
 package com.zeki.kisvolcano.domain._common;
 
+import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -16,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class NaverFinanceCrawlerService {
 
-    private final WebClientCommonConnector<String> stringWebClientCommonConnector;
+    private final WebClientConnector webClientConnector;
 
     /**
      * naver finance api 를 이용해서 주가데이터를 받아온다.
@@ -41,7 +42,14 @@ public class NaverFinanceCrawlerService {
         reqParam.add("startTime", startTime);
         reqParam.add("timeframe", timeframe);
 
-        return stringWebClientCommonConnector.connect(HttpMethod.GET, "api.finance.naver.com/siseJson.naver", null, reqParam, null, String.class);
+        return webClientConnector.<Void, String>connectBuilder()
+                .method(HttpMethod.GET)
+                .path("api.finance.naver.com/siseJson.naver")
+                .requestHeaders(null)
+                .requestParams(reqParam)
+                .requestBody(null)
+                .classType(String.class)
+                .build().getBody();
     }
 
 

@@ -61,12 +61,14 @@ public class HolidayService {
         reqParam.set("_type", "json");
         reqParam.set("numOfRows", "100");
 
-        HolidayResDto response = webClientDataGoKrConnectorHolidayResDto.connect(HttpMethod.GET,
-                "B090041/openapi/service/SpcdeInfoService/getRestDeInfo",
-                null,
-                reqParam,
-                null,
-                HolidayResDto.class);
+        HolidayResDto response = webClientConnector.<Void,HolidayResDto>connectDataGoApiBuilder()
+                .method(HttpMethod.GET)
+                .path("B090041/openapi/service/SpcdeInfoService/getRestDeInfo")
+                .requestHeaders(null)
+                .requestParams(reqParam)
+                .requestBody(null)
+                .classType(HolidayResDto.class)
+                .build().getBody();
 
         for (HolidayResDto.Item item : response.getResponse().getBody().getItems().getItem()) {
             if (item.getIsholiday().equals("Y")) {

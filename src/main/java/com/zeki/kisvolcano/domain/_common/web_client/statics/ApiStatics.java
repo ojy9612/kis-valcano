@@ -34,6 +34,7 @@ public class ApiStatics {
     @Getter
     @Setter
     public static class DataGo {
+        private String url;
         private String encoding;
         private String decoding;
     }
