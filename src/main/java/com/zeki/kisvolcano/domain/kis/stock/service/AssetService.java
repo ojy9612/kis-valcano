@@ -5,6 +5,8 @@ import com.zeki.kisvolcano.domain.kis.stock.dto.AccountDataResDto;
 import com.zeki.kisvolcano.domain._common.em.TradeMode;
 import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
 import com.zeki.kisvolcano.domain.kis.token.service.TokenService;
+import com.zeki.kisvolcano.exception.APIException;
+import com.zeki.kisvolcano.exception.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -77,7 +79,7 @@ public class AssetService {
                 reqParams.set("CTX_AREA_FK100", trCont.equals("F") || trCont.equals("M") ? body.getCtxAreaFk100() : "");
                 reqParams.set("CTX_AREA_NK100", trCont.equals("F") || trCont.equals("M") ? body.getCtxAreaNk100() : "");
             } catch (NullPointerException e) {
-                throw new NullPointerException("다음 데이터 존재하지 않습니다.");
+                throw new APIException(ResponseCode.RESOURCE_NOT_FOUND, "getAccountData의 다음 데이터 존재하지 않습니다.");
             }
 
         }

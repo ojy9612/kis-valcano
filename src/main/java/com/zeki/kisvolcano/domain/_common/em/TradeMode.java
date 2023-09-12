@@ -1,5 +1,7 @@
 package com.zeki.kisvolcano.domain._common.em;
 
+import com.zeki.kisvolcano.exception.APIException;
+import com.zeki.kisvolcano.exception.ResponseCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +19,7 @@ public enum TradeMode {
                 return tradeMode;
             }
         }
-        throw new IllegalStateException("유효하지 않은 TradeMode 입니다. - " + name);
+        throw new APIException(ResponseCode.FAIL_TO_READ_PROFILE,"유효하지 않은 TradeMode 입니다. - " + name);
     }
 
     TradeMode(String name) {
