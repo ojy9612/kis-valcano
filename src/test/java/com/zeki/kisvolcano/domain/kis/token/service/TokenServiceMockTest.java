@@ -165,17 +165,10 @@ class TokenServiceMockTest {
         @DisplayName("Json 파싱 실패")
         void testCheckGetToken_Json() throws JsonProcessingException, NoSuchFieldException, IllegalAccessException {
             // case
-            ObjectMapper realObjectMapper = new ObjectMapper();
-            String goodResponse = "{\n" +
-                                  "    \"access_token\" : \"not_exp_token\",\n" +
-                                  "    \"access_token_token_expired\" : \"" + notExpToken.getExpiredDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "\"\n" +
-                                  "}";
-
             String badResponse = "{\n" +
                                  "    \"access_token\" : \"not_exp_token\",\n" +
                                  "    \"access_token_token_expired\" : \"" + notExpToken.getExpiredDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "\"\n";
 
-            JsonNode value = realObjectMapper.readTree(goodResponse);
             when(objectMapper.readTree(badResponse))
                     .thenThrow(JsonProcessingException.class);
 
