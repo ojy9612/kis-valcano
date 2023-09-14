@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,16 +37,27 @@ public class TokenService {
      * 생성자를 통해 토큰을 가져온다.
      */
     @PostConstruct
+    private void init() {
+        this.createDeleteToken();
+    }
+
+    /**
+     * 토큰이 expired 되었는지 DB에 들리지 않고 확인함.
+     *
+     * @return {@link String} Token value
+     */
     @Transactional
-    public void init() {
-        token = this.createDeleteToken();
+    public String checkGetToken() {
+        if (token.getExpiredDate().minusHours(6).isBefore(LocalDateTime.now())) {
+            this.createDeleteToken();
+        }
+
+        return token.getTokenValue();
     }
 
     /**
      * 토큰 생성 함수
-     * 직접 사용 금지
      */
-//    @Transactional
     private Token createToken() {
         Map<String, String> reqBody = new HashMap<>();
 
@@ -82,42 +94,26 @@ public class TokenService {
 
     /**
      * 토큰을 가져오거나 Expired 되었다면 삭제하고 생성하는 함수
-     * 직접 사용 금지
-     *
-     * @return Token
      */
-//    @Transactional
-    private Token createDeleteToken() {
+    private void createDeleteToken() {
         List<Token> tokenList = tokenRepository.findAll();
 
         Token result = null;
 
+        List<Token> removeTokenList = new ArrayList<>();
         for (Token t : tokenList) {
             if (t.getMode().equals(pm.getMode())) {
                 if (t.getExpiredDate().minusHours(6).isBefore(LocalDateTime.now())) {
-                    tokenRepository.delete(t);
+                    removeTokenList.add(t);
                 } else {
                     result = t;
                 }
             }
         }
 
-        return result != null ? result : this.createToken();
-    }
+        tokenRepository.deleteAllInBatch(removeTokenList);
 
-    /**
-     * 토큰이 expired 되었는지 DB에 들리지 않고 확인함.
-     * 직접 사용 가능
-     *
-     * @return String Token value
-     */
-    @Transactional
-    public String checkGetToken() {
-        if (token.getExpiredDate().minusHours(6).isBefore(LocalDateTime.now())) {
-            return this.createDeleteToken().getTokenValue();
-        } else {
-            return token.getTokenValue();
-        }
+        token = result != null ? result : this.createToken();
     }
 
 }
