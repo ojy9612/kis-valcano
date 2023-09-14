@@ -4,25 +4,26 @@ import com.zeki.kisvolcano.exception.APIException;
 import com.zeki.kisvolcano.exception.ResponseCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @NoArgsConstructor
-public enum TradeMode {
-    REAL("real"),
-    TRAIN("train");
+public enum TradeMode implements DescriptionEnum {
+    REAL("prod"),
+    TRAIN("dev");
 
-    private String name;
+    private String description;
 
-    public static TradeMode getTradeMode(String name) {
+    TradeMode(String name) {
+        this.description = name;
+    }
+
+    public static @NotNull TradeMode getEnum(@NotNull String description) {
         for (TradeMode tradeMode : values()) {
-            if (tradeMode.getName().equalsIgnoreCase(name)) {
+            if (tradeMode.getDescription().equalsIgnoreCase(description)) {
                 return tradeMode;
             }
         }
-        throw new APIException(ResponseCode.FAIL_TO_READ_PROFILE,"유효하지 않은 TradeMode 입니다. - " + name);
-    }
-
-    TradeMode(String name) {
-        this.name = name;
+        throw new APIException(ResponseCode.INVALID_PROFILE, "유효하지 않은 TradeMode 입니다. - " + description);
     }
 }

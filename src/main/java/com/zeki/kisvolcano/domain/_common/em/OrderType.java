@@ -2,27 +2,28 @@ package com.zeki.kisvolcano.domain._common.em;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
 @NoArgsConstructor
-public enum OrderType {
+public enum OrderType implements DescriptionEnum {
 
     BUY("BUY"),
     SELL("SELL");
 
-    private String name;
+    private String description;
 
-    public static @Nullable OrderType getEnum(String name) {
+    OrderType(String description) {
+        this.description = description;
+    }
+
+    public static @Nullable OrderType getEnum(@NotNull String description) {
         for (OrderType tradeMode : values()) {
-            if (tradeMode.getName().equalsIgnoreCase(name)) {
+            if (tradeMode.getDescription().equalsIgnoreCase(description)) {
                 return tradeMode;
             }
         }
         return null;
-    }
-
-    OrderType(String name) {
-        this.name = name;
     }
 }
