@@ -4,6 +4,7 @@ import com.zeki.kisvolcano.config.PropertiesMapping;
 import com.zeki.kisvolcano.domain._common.em.OrderType;
 import com.zeki.kisvolcano.domain._common.em.TradeMode;
 import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
+import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
 import com.zeki.kisvolcano.domain.kis.order.dto.OrderStockResDto;
 import com.zeki.kisvolcano.domain.kis.token.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class TradeService {
     private final WebClientConnector webClientConnector;
     private final TokenService tokenService;
 
+    private final ApiStatics apiStatics;
     private final PropertiesMapping pm;
 
     /**
@@ -38,15 +40,15 @@ public class TradeService {
         Map<String, String> reqHeader = new HashMap<>();
 
         reqHeader.put("authorization", tokenService.checkGetToken());
-        reqHeader.put("appkey", pm.getAppKey());
-        reqHeader.put("appsecret", pm.getAppSecret());
-        if (orderType.getName().equals("BUY")) {
+        reqHeader.put("appkey", apiStatics.getKis().getAppKey());
+        reqHeader.put("appsecret", apiStatics.getKis().getAppSecret());
+        if (orderType.getDescription().equals("BUY")) {
             reqHeader.put("tr_id", pm.getMode().equals(TradeMode.REAL) ? "TTTC0802U" : "VTTC0802U");
-        } else if (orderType.getName().equals("SELL")) {
+        } else if (orderType.getDescription().equals("SELL")) {
             reqHeader.put("tr_id", pm.getMode().equals(TradeMode.REAL) ? "TTTC0801U" : "VTTC0801U");
         }
 
-        reqBody.put("CANO", pm.getAccountNum());
+        reqBody.put("CANO", apiStatics.getKis().getAccountNumber());
         reqBody.put("ACNT_PRDT_CD", "01");
         reqBody.put("PDNO", stockCode);
         reqBody.put("ORD_DVSN", orderPrice.equals("0") ? "01" : "00");

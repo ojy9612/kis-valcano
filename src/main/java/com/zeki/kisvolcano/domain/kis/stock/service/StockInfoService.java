@@ -1,7 +1,7 @@
 package com.zeki.kisvolcano.domain.kis.stock.service;
 
-import com.zeki.kisvolcano.config.PropertiesMapping;
 import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
+import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
 import com.zeki.kisvolcano.domain.kis.stock.dto.StockInfoPriceResDto;
 import com.zeki.kisvolcano.domain.kis.stock.entity.StockCode;
 import com.zeki.kisvolcano.domain.kis.stock.entity.StockInfo;
@@ -35,7 +35,7 @@ public class StockInfoService {
     private final StockCodeService stockCodeService;
     private final TokenService tokenService;
 
-    private final PropertiesMapping pm;
+    private final ApiStatics apiStatics;
 
 
     /**
@@ -61,8 +61,8 @@ public class StockInfoService {
             MultiValueMap<String, String> reqParams = new LinkedMultiValueMap<>();
 
             reqHeaders.put("authorization", tokenService.checkGetToken());
-            reqHeaders.put("appkey", pm.getAppKey());
-            reqHeaders.put("appsecret", pm.getAppSecret());
+            reqHeaders.put("appkey", apiStatics.getKis().getAppKey());
+            reqHeaders.put("appsecret", apiStatics.getKis().getAppSecret());
             reqHeaders.put("tr_id", "FHKST03010100");
 
             reqParams.set("FID_COND_MRKT_DIV_CODE", "J");
@@ -72,7 +72,7 @@ public class StockInfoService {
             reqParams.set("FID_PERIOD_DIV_CODE", "D");
             reqParams.set("FID_ORG_ADJ_PRC", "0");
 
-            StockInfoPriceResDto response = webClientConnector.<Map<String,String>, StockInfoPriceResDto>connectKisApiBuilder()
+            StockInfoPriceResDto response = webClientConnector.<Map<String, String>, StockInfoPriceResDto>connectKisApiBuilder()
                     .method(HttpMethod.GET)
                     .path("/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice")
                     .requestHeaders(reqHeaders)
@@ -114,7 +114,7 @@ public class StockInfoService {
                             .build();
                 }
             } else {
-                throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR,"KIS 통신 에러" + response.getRtCd() + response.getMsg1() + response.getMsgCd());
+                throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR, "KIS 통신 에러" + response.getRtCd() + response.getMsg1() + response.getMsgCd());
             }
             /* ----- */
         }

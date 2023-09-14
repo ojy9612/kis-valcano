@@ -1,9 +1,7 @@
 package com.zeki.kisvolcano.domain._common.web_client;
 
 
-import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
@@ -21,20 +19,17 @@ public class WebClientConnector {
     private final WebClient webClientKis;
     private final WebClient webClientDataGo;
 
-    private final ApiStatics statics;
 
     public WebClientConnector(@Qualifier("WebClient") WebClient webClient,
                               @Qualifier("WebClientKIS") WebClient webClientKis,
-                              @Qualifier("WebClientDataGo") WebClient webClientDataGo,
-                              ApiStatics statics) {
+                              @Qualifier("WebClientDataGo") WebClient webClientDataGo) {
         this.webClient = webClient;
         this.webClientKis = webClientKis;
         this.webClientDataGo = webClientDataGo;
-        this.statics = statics;
     }
 
     @Builder(builderMethodName = "connectBuilder", builderClassName = "ConnectBuilder")
-    public <Q, S> ResponseEntity<S> connect(HttpMethod method, String path, Map<String,String> requestHeaders, MultiValueMap<String,String> requestParams, Q requestBody, Class<S> classType){
+    public <Q, S> ResponseEntity<S> connect(HttpMethod method, String path, Map<String, String> requestHeaders, MultiValueMap<String, String> requestParams, Q requestBody, Class<S> classType) {
 
         return webClient
                 .method(method)
@@ -42,14 +37,14 @@ public class WebClientConnector {
                         .path(path)
                         .queryParams(requestParams)
                         .build())
-                .headers(httpHeaders -> httpHeaders.setAll(requestHeaders))
+                .headers(httpHeaders -> httpHeaders.setAll(requestHeaders == null ? Map.of() : requestHeaders))
                 .bodyValue(requestBody)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(classType))
                 .block();
     }
 
     @Builder(builderMethodName = "connectKisApiBuilder", builderClassName = "ConnectKisApiBuilder")
-    public <Q, S> ResponseEntity<S> connectKisApi(HttpMethod method, String path, Map<String,String> requestHeaders, MultiValueMap<String,String> requestParams, Q requestBody, Class<S> classType){
+    public <Q, S> ResponseEntity<S> connectKisApi(HttpMethod method, String path, Map<String, String> requestHeaders, MultiValueMap<String, String> requestParams, Q requestBody, Class<S> classType) {
 
         return webClientKis
                 .method(method)
@@ -57,14 +52,14 @@ public class WebClientConnector {
                         .path(path)
                         .queryParams(requestParams)
                         .build())
-                .headers(httpHeaders -> httpHeaders.setAll(requestHeaders))
+                .headers(httpHeaders -> httpHeaders.setAll(requestHeaders == null ? Map.of() : requestHeaders))
                 .bodyValue(requestBody)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(classType))
                 .block();
     }
 
     @Builder(builderMethodName = "connectDataGoApiBuilder", builderClassName = "ConnectDataGoApiBuilder")
-    public <Q, S> ResponseEntity<S> connectDataGoApi(HttpMethod method, String path, Map<String,String> requestHeaders, MultiValueMap<String,String> requestParams, Q requestBody, Class<S> classType){
+    public <Q, S> ResponseEntity<S> connectDataGoApi(HttpMethod method, String path, Map<String, String> requestHeaders, MultiValueMap<String, String> requestParams, Q requestBody, Class<S> classType) {
 
         return webClientDataGo
                 .method(method)
@@ -72,7 +67,7 @@ public class WebClientConnector {
                         .path(path)
                         .queryParams(requestParams)
                         .build())
-                .headers(httpHeaders -> httpHeaders.setAll(requestHeaders))
+                .headers(httpHeaders -> httpHeaders.setAll(requestHeaders == null ? Map.of() : requestHeaders))
                 .bodyValue(requestBody)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(classType))
                 .block();

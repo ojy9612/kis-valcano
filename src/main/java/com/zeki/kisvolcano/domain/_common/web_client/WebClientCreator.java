@@ -1,6 +1,5 @@
 package com.zeki.kisvolcano.domain._common.web_client;
 
-import com.zeki.kisvolcano.config.PropertiesMapping;
 import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
 import com.zeki.kisvolcano.exception.APIException;
 import com.zeki.kisvolcano.exception.ResponseCode;
@@ -31,7 +30,6 @@ import java.time.Duration;
 public class WebClientCreator {
     private final WebClient.Builder webClientBuilder;
     private final ApiStatics apiStatics;
-    private final PropertiesMapping pm;
 
 
     /**
@@ -39,8 +37,8 @@ public class WebClientCreator {
      *
      * @return {@link WebClient}
      */
-    @Qualifier("WebClient")
     @Bean
+    @Qualifier("WebClient")
     public WebClient setBaseUrl() {
         String baseUrl = "";
 
@@ -75,8 +73,8 @@ public class WebClientCreator {
      *
      * @return {@link WebClient}
      */
-    @Qualifier("WebClientKIS")
     @Bean
+    @Qualifier("WebClientKIS")
     public WebClient setBaseUrlKis() {
         String baseUrl = apiStatics.getKis().getUrl();
 
@@ -133,10 +131,10 @@ public class WebClientCreator {
      *
      * @return {@link WebClient}
      */
-    @Qualifier("WebClientDataGo")
     @Bean
+    @Qualifier("WebClientDataGo")
     public WebClient setBaseUrlDataGo() {
-        String url = apiStatics.getDataGo().getUrl() + "serviceKey=" + pm.getEnKey();
+        String url = apiStatics.getDataGo().getUrl() + "serviceKey=" + apiStatics.getDataGo().getEncoding();
 
         // 인코딩 설정
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(url);
@@ -151,7 +149,7 @@ public class WebClientCreator {
         final SslContext sslContext;
         try {
             sslContext = SslContextBuilder
-                                        .forClient()
+                    .forClient()
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
                     .build();
         } catch (SSLException e) {

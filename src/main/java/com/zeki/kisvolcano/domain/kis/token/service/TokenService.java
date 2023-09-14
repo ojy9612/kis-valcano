@@ -5,16 +5,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeki.kisvolcano.config.PropertiesMapping;
 import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
-import com.zeki.kisvolcano.domain.kis.token.repository.TokenRepository;
+import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
 import com.zeki.kisvolcano.domain.kis.token.entity.Token;
+import com.zeki.kisvolcano.domain.kis.token.repository.TokenRepository;
 import com.zeki.kisvolcano.exception.APIException;
 import com.zeki.kisvolcano.exception.ResponseCode;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -24,13 +25,12 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class TokenService {
+    private Token token;
     private final TokenRepository tokenRepository;
     private final ObjectMapper objectMapper;
     private final WebClientConnector webClientConnector;
-
     private final PropertiesMapping pm;
-
-    private Token token;
+    private final ApiStatics apiStatics;
 
     /**
      * 생성자를 통해 토큰을 가져온다.
@@ -50,13 +50,13 @@ public class TokenService {
         Map<String, String> reqBody = new HashMap<>();
 
         reqBody.put("grant_type", "client_credentials");
-        reqBody.put("appkey", pm.getAppKey());
-        reqBody.put("appsecret", pm.getAppSecret());
+        reqBody.put("appkey", apiStatics.getKis().getAppKey());
+        reqBody.put("appsecret", apiStatics.getKis().getAppSecret());
 
         JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(
-                    webClientConnector.<Map<String,String>, String>connectKisApiBuilder()
+                    webClientConnector.<Map<String, String>, String>connectKisApiBuilder()
                             .method(HttpMethod.POST)
                             .path("/oauth2/tokenP")
                             .requestHeaders(null)

@@ -1,9 +1,10 @@
 package com.zeki.kisvolcano.domain.kis.stock.service;
 
 import com.zeki.kisvolcano.config.PropertiesMapping;
-import com.zeki.kisvolcano.domain.kis.stock.dto.AccountDataResDto;
 import com.zeki.kisvolcano.domain._common.em.TradeMode;
 import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
+import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
+import com.zeki.kisvolcano.domain.kis.stock.dto.AccountDataResDto;
 import com.zeki.kisvolcano.domain.kis.token.service.TokenService;
 import com.zeki.kisvolcano.exception.APIException;
 import com.zeki.kisvolcano.exception.ResponseCode;
@@ -22,8 +23,9 @@ public class AssetService {
 
     private final WebClientConnector webClientConnector;
     private final TokenService tokenService;
-    
+
     private final PropertiesMapping pm;
+    private final ApiStatics apiStatics;
 
     /**
      * 현재 매수 내역, 계좌 현황 정보를 가져온다.
@@ -37,11 +39,11 @@ public class AssetService {
         Map<String, String> reqHeaders = new HashMap<>();
 
         reqHeaders.put("authorization", tokenService.checkGetToken());
-        reqHeaders.put("appkey", pm.getAppKey());
-        reqHeaders.put("appsecret", pm.getAppSecret());
+        reqHeaders.put("appkey", apiStatics.getKis().getAppKey());
+        reqHeaders.put("appsecret", apiStatics.getKis().getAppSecret());
         reqHeaders.put("tr_id", pm.getMode().equals(TradeMode.REAL) ? "TTTC8434R" : "VTTC8434R");
 
-        reqParams.add("CANO", pm.getAccountNum());
+        reqParams.add("CANO", apiStatics.getKis().getAccountNumber());
         reqParams.add("ACNT_PRDT_CD", "01");
         reqParams.add("AFHR_FLPR_YN", "N");
         reqParams.add("OFL_YN", "");
@@ -60,7 +62,7 @@ public class AssetService {
 
         while (trCont.equals("F") || trCont.equals("M")) {
             ResponseEntity<AccountDataResDto> response = webClientConnector.
-                    <Map<String,String>,AccountDataResDto>connectKisApiBuilder()
+                    <Map<String, String>, AccountDataResDto>connectKisApiBuilder()
                     .method(HttpMethod.GET)
                     .path("/uapi/domestic-stock/v1/trading/inquire-balance")
                     .requestHeaders(reqHeaders)
