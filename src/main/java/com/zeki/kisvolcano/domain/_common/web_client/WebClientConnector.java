@@ -38,7 +38,7 @@ public class WebClientConnector {
                         .queryParams(requestParams)
                         .build())
                 .headers(httpHeaders -> httpHeaders.setAll(requestHeaders == null ? Map.of() : requestHeaders))
-                .bodyValue(requestBody)
+                .bodyValue(requestBody == null ? Map.of() : requestBody)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(classType))
                 .block();
     }
@@ -53,7 +53,7 @@ public class WebClientConnector {
                         .queryParams(requestParams)
                         .build())
                 .headers(httpHeaders -> httpHeaders.setAll(requestHeaders == null ? Map.of() : requestHeaders))
-                .bodyValue(requestBody)
+                .bodyValue(requestBody == null ? Map.of() : requestBody)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(classType))
                 .block();
     }
@@ -68,7 +68,7 @@ public class WebClientConnector {
                         .queryParams(requestParams)
                         .build())
                 .headers(httpHeaders -> httpHeaders.setAll(requestHeaders == null ? Map.of() : requestHeaders))
-                .bodyValue(requestBody)
+                .bodyValue(requestBody == null ? Map.of() : requestBody)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(classType))
                 .block();
     }
