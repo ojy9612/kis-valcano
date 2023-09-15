@@ -20,7 +20,7 @@ public class QueryDslUtil {
                 .toArray(OrderSpecifier[]::new);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static class OrderByNull extends OrderSpecifier {
 
         private static final OrderByNull DEFAULT = new OrderByNull();

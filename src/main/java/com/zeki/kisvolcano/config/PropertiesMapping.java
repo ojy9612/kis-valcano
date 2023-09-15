@@ -27,6 +27,8 @@ public class PropertiesMapping {
             log.info("모의투자 계좌로 세팅 되었습니다. mode : " + mode.getDescription());
         } else if (mode.equals(TradeMode.REAL)) {
             log.info("실 계좌로 세팅 되었습니다. mode : " + mode.getDescription());
+        } else if (mode.equals(TradeMode.TEST)) {
+            log.info("테스트(모의투자)로 세팅 되었습니다. mode : " + mode.getDescription());
         } else {
             throw new APIException(ResponseCode.INVALID_PROFILE, "허용되지 않은 profile 입니다. - " + profile);
         }

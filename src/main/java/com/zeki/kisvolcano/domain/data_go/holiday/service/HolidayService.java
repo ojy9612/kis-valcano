@@ -35,7 +35,7 @@ public class HolidayService {
     @Transactional
     public LocalDate getAvailableDate() {
         LocalDate nowDate;
-        if (LocalTime.now().compareTo(LocalTime.of(16, 0)) < 0) {
+        if (LocalTime.now().isBefore(LocalTime.of(16, 0))) {
             nowDate = LocalDate.now().minusDays(1);
         } else {
             nowDate = LocalDate.now();
@@ -61,7 +61,7 @@ public class HolidayService {
         reqParam.set("_type", "json");
         reqParam.set("numOfRows", "100");
 
-        HolidayResDto response = webClientConnector.<Void,HolidayResDto>connectDataGoApiBuilder()
+        HolidayResDto response = webClientConnector.<Void, HolidayResDto>connectDataGoApiBuilder()
                 .method(HttpMethod.GET)
                 .path("B090041/openapi/service/SpcdeInfoService/getRestDeInfo")
                 .requestHeaders(null)
@@ -84,7 +84,7 @@ public class HolidayService {
 
         while (!date.equals(LocalDate.of(year + 1, 1, 1))) {
             if (date.getDayOfWeek().getValue() == DayOfWeek.SUNDAY.getValue()
-                    || date.getDayOfWeek().getValue() == DayOfWeek.SATURDAY.getValue()) {
+                || date.getDayOfWeek().getValue() == DayOfWeek.SATURDAY.getValue()) {
                 this.createHoliday(Holiday.builder()
                         .name(date.getDayOfWeek().name())
                         .date(date)
@@ -113,7 +113,6 @@ public class HolidayService {
      * @param date 검사할 날짜
      * @return boolean
      */
-    @Transactional(readOnly = true)
     public boolean isHoliday(LocalDate date) {
         return holidayRepository.findByDate(date).isPresent();
     }
@@ -126,30 +125,30 @@ public class HolidayService {
     @Cacheable(value = "deltaOneDay")
     @Transactional(readOnly = true)
     public LocalDate deltaOneAvailableDate() {
-        LocalDate now = LocalDate.now().minusDays(1);
+        LocalDate date = this.getAvailableDate().minusDays(1);
 
-        while (this.isHoliday(now)) {
-            now = now.minusDays(1);
+        while (this.isHoliday(date)) {
+            date = date.minusDays(1);
         }
 
-        return now;
+        return date;
     }
 
     /**
-     * 공휴일이 아닌 전일 날짜를 가져온다.
+     * 공휴일이 아닌 두번째 전일 날짜를 가져온다.
      *
      * @return LocalDateTime
      */
     @Cacheable(value = "deltaTwoDay")
     @Transactional(readOnly = true)
     public LocalDate deltaTwoAvailableDate() {
-        LocalDate now = this.deltaOneAvailableDate().minusDays(1);
+        LocalDate date = this.deltaOneAvailableDate().minusDays(1);
 
-        while (this.isHoliday(now)) {
-            now = now.minusDays(1);
+        while (this.isHoliday(date)) {
+            date = date.minusDays(1);
         }
 
-        return now;
+        return date;
     }
 
 }
