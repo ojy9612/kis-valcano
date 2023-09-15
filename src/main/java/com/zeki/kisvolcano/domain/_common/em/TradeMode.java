@@ -10,7 +10,8 @@ import org.jetbrains.annotations.NotNull;
 @NoArgsConstructor
 public enum TradeMode implements DescriptionEnum {
     REAL("prod"),
-    TRAIN("dev");
+    TRAIN("dev"),
+    TEST("test");
 
     private String description;
 

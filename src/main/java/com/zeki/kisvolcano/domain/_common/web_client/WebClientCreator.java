@@ -134,7 +134,7 @@ public class WebClientCreator {
     @Bean
     @Qualifier("WebClientDataGo")
     public WebClient setBaseUrlDataGo() {
-        String url = apiStatics.getDataGo().getUrl() + "serviceKey=" + apiStatics.getDataGo().getEncoding();
+        String url = apiStatics.getDataGo().getUrl() + "?serviceKey=" + apiStatics.getDataGo().getEncoding();
 
         // 인코딩 설정
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(url);

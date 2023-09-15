@@ -44,3 +44,4 @@ out/
 /docker-compose.yml
 /logs/
 /mysql/
+/src/main/resources/application-test.yml
