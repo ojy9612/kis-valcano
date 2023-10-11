@@ -54,25 +54,31 @@ class StockCodeServiceTest {
             String year = Year.now().format(DateTimeFormatter.ofPattern("yyyy"));
             holidayService.createHolidaysByYear(Integer.parseInt(year));
 
-            ExtendStockCodeService extendStockCodeService = new ExtendStockCodeService(stockCodeRepository, holidayService, webClientConnector);
+            ExtendStockCodeServiceTest extendStockCodeServiceTest = new ExtendStockCodeServiceTest(stockCodeRepository, holidayService, webClientConnector);
 
             // when
             stockCodeService.upsertStockCode();
             List<StockCode> stockCodeList = stockCodeService.getStockCodeList();
 
-            StockCode stockCode = stockCodeList.get(0);
-            String stockName = stockCode.getName();
-            StockCodeResDto.Item item = StockCodeResDto.Item.builder()
-                    .srtncd("A" + stockCode.getCode())
-                    .itmsnm(stockCode.getName() + "test")
-                    .mrktctg(stockCode.getMarket())
+            StockCode stockCode1 = stockCodeList.get(0);
+            StockCode stockCode2 = stockCodeList.get(1);
+            String stockName = stockCode1.getName();
+            StockCodeResDto.Item item1 = StockCodeResDto.Item.builder()
+                    .srtncd("A" + stockCode1.getCode())
+                    .itmsnm(stockCode1.getName() + "test")
+                    .mrktctg(stockCode1.getMarket())
                     .build();
-            extendStockCodeService.setTestItem(List.of(item));
-            extendStockCodeService.upsertStockCode();
-            List<StockCode> stockCodeList2 = extendStockCodeService.getStockCodeList();
+            StockCodeResDto.Item item2 = StockCodeResDto.Item.builder()
+                    .srtncd("A" + stockCode2.getCode())
+                    .itmsnm(stockCode2.getName())
+                    .mrktctg(stockCode2.getMarket())
+                    .build();
+            extendStockCodeServiceTest.setTestItem(List.of(item1, item2));
+            extendStockCodeServiceTest.upsertStockCode();
+            List<StockCode> stockCodeList2 = extendStockCodeServiceTest.getStockCodeList();
 
             Optional<StockCode> first = stockCodeList2.stream()
-                    .filter(entity -> entity.getCode().equals(stockCode.getCode()))
+                    .filter(entity -> entity.getCode().equals(stockCode1.getCode()))
                     .findFirst();
 
             // then

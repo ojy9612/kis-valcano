@@ -7,11 +7,11 @@ import com.zeki.kisvolcano.domain.kis.stock.repository.StockCodeRepository;
 
 import java.util.List;
 
-public class ExtendStockCodeService extends StockCodeService {
+public class ExtendStockCodeServiceTest extends StockCodeService {
 
     public List<StockCodeResDto.Item> testItem;
 
-    public ExtendStockCodeService(StockCodeRepository stockCodeRepository, HolidayService holidayService, WebClientConnector webClientConnector) {
+    public ExtendStockCodeServiceTest(StockCodeRepository stockCodeRepository, HolidayService holidayService, WebClientConnector webClientConnector) {
         super(stockCodeRepository, holidayService, webClientConnector);
     }
 
