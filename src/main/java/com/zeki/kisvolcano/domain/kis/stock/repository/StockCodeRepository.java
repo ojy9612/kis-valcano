@@ -3,8 +3,5 @@ package com.zeki.kisvolcano.domain.kis.stock.repository;
 import com.zeki.kisvolcano.domain.kis.stock.entity.StockCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-
-public interface StockCodeRepository extends JpaRepository<StockCode, Integer> {
-    Optional<StockCode> findByCode(String code);
+public interface StockCodeRepository extends JpaRepository<StockCode, String> {
 }

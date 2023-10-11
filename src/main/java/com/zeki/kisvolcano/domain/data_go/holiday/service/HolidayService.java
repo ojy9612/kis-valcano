@@ -15,8 +15,10 @@ import org.springframework.util.MultiValueMap;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class HolidayService {
     /**
      * 4시를 기준으로 유효한 날을 리턴함
      *
-     * @return LocalDateTime
+     * @return {@link LocalDateTime}
      */
     @Cacheable(value = "availableDate")
     @Transactional
@@ -70,7 +72,7 @@ public class HolidayService {
                 .classType(HolidayResDto.class)
                 .build().getBody();
 
-        for (HolidayResDto.Item item : response.getResponse().getBody().getItems().getItem()) {
+        for (HolidayResDto.Item item : Objects.requireNonNull(response).getResponse().getBody().getItems().getItem()) {
             if (item.getIsholiday().equals("Y")) {
                 this.createHoliday(Holiday.builder()
                         .name(item.getDatename())
@@ -84,7 +86,7 @@ public class HolidayService {
 
         while (!date.equals(LocalDate.of(year + 1, 1, 1))) {
             if (date.getDayOfWeek().getValue() == DayOfWeek.SUNDAY.getValue()
-                || date.getDayOfWeek().getValue() == DayOfWeek.SATURDAY.getValue()) {
+                    || date.getDayOfWeek().getValue() == DayOfWeek.SATURDAY.getValue()) {
                 this.createHoliday(Holiday.builder()
                         .name(date.getDayOfWeek().name())
                         .date(date)
@@ -98,7 +100,7 @@ public class HolidayService {
     /**
      * 공휴일이 이미 DB에 있는지 검사 후 생성한다.
      *
-     * @param holiday 저장할 Holiday 객체
+     * @param holiday {@link Holiday}
      */
     @Transactional
     public void createHoliday(@NotNull Holiday holiday) {
@@ -120,7 +122,7 @@ public class HolidayService {
     /**
      * 공휴일이 아닌 전일 날짜를 가져온다.
      *
-     * @return LocalDateTime
+     * @return {@link LocalDateTime}
      */
     @Cacheable(value = "deltaOneDay")
     @Transactional(readOnly = true)
@@ -137,7 +139,7 @@ public class HolidayService {
     /**
      * 공휴일이 아닌 두번째 전일 날짜를 가져온다.
      *
-     * @return LocalDateTime
+     * @return {@link LocalDateTime}
      */
     @Cacheable(value = "deltaTwoDay")
     @Transactional(readOnly = true)
