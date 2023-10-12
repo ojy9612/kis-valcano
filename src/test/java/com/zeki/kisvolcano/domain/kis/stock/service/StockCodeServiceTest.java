@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,6 +87,26 @@ class StockCodeServiceTest {
             assertEquals(stockCodeList.size(), stockCodeList2.size());
             assertTrue(first.isPresent());
             assertEquals(first.get().getName(), stockName + "test");
+        }
+    }
+
+    @Nested
+    @DisplayName("실패 테스트")
+    class FailTest {
+
+        @Test
+        @DisplayName("data.go.kr API 호출 실패")
+        void upsertStockCode() {
+            // given
+            ExtendStockCodeServiceTest extendStockCodeServiceTest = new ExtendStockCodeServiceTest(stockCodeRepository, holidayService, webClientConnector);
+            extendStockCodeServiceTest.setTestItem(new ArrayList<>());
+
+            // when
+            extendStockCodeServiceTest.upsertStockCode();
+            List<StockCode> stockCodeList = extendStockCodeServiceTest.getStockCodeList();
+
+            // then
+            assertEquals(0, stockCodeList.size());
         }
     }
 }
