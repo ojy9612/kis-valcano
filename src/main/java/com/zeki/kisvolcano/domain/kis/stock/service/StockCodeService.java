@@ -15,7 +15,9 @@ import org.springframework.util.MultiValueMap;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +28,9 @@ public class StockCodeService {
     private final WebClientConnector webClientConnector;
 
     /**
-     * 상장된 모든 종목 코드를 업데이트, 생성 한다.
+     * DataGoKr API를 통해 상장된 모든 종목 코드를 가져온다.
      */
-    @Transactional
-    public void upsertStockCode() {
+    protected List<StockCodeResDto.Item> getStockCodeFromDataGoKr() {
         int pageNo = 1;
         int totalCount = Integer.MAX_VALUE;
         List<StockCodeResDto.Item> bodyList = new ArrayList<>();
@@ -51,39 +52,43 @@ public class StockCodeService {
                     .classType(StockCodeResDto.class)
                     .build().getBody();
 
-            totalCount = response.getResponse().getBody().getTotalcount();
+            totalCount = Objects.requireNonNull(response).getResponse().getBody().getTotalcount();
             pageNo++;
             bodyList.addAll(response.getResponse().getBody().getItems().getItem());
         }
+        return bodyList;
+    }
 
-        List<StockCode> stockCodeList = bodyList.stream().filter(item -> item.getMrktctg().equals("KOSDAQ") || item.getMrktctg().equals("KOSPI"))
-                .map(body -> StockCode.builder()
-                        .name(body.getItmsnm())
-                        .code(body.getSrtncd().substring(1))
-                        .market(body.getMrktctg())
-                        .build()
-                ).toList();
+    /**
+     * 상장된 모든 종목 코드를 업데이트, 생성 한다.
+     */
+    @Transactional
+    public void upsertStockCode() {
+        List<StockCodeResDto.Item> bodyList = this.getStockCodeFromDataGoKr();
 
+        Map<String, StockCode> stockCodeMap = this.getStockCodeMap();
+
+        List<StockCode> stockCodeList = new ArrayList<>();
         for (StockCodeResDto.Item item : bodyList) {
             if (item.getMrktctg().equals("KOSDAQ") || item.getMrktctg().equals("KOSPI")) {
                 String name = item.getItmsnm();
-                String code = item.getSrtncd().substring(1);
+                String code = item.getSrtncd().substring(1);    // 종목코드 맨 앞에 알파벳이 포함되어 전송되므로 제거
                 String market = item.getMrktctg();
-                Optional<StockCode> stockCodeOptional = stockCodeRepository.findByCode(code);
+                StockCode stockCodeEntity = stockCodeMap.getOrDefault(code, null);
 
-                if (stockCodeOptional.isEmpty()) {
-                    StockCode stockCode = StockCode.builder()
-                            .name(name)
+                if (stockCodeEntity == null) {
+                    stockCodeEntity = StockCode.builder()
                             .code(code)
+                            .name(name)
                             .market(market)
                             .build();
-                    stockCodeRepository.save(stockCode);
+                    stockCodeList.add(stockCodeEntity);
                 } else {
-                    stockCodeOptional.get().updateStockCodeBuilder()
+                    stockCodeEntity.updateStockCodeBuilder()
+                            .name(name)
                             .market(market)
                             .build();
                 }
-
             }
         }
 
@@ -95,8 +100,17 @@ public class StockCodeService {
      *
      * @return List<String> 종목코드 List
      */
-    @Transactional(readOnly = true)
     public List<StockCode> getStockCodeList() {
         return stockCodeRepository.findAll();
     }
+
+    /**
+     * DB에 저장된 모든 종목코드를 불러와 Map으로 Return한다.
+     * Key : 종목코드, Value : Stock Entity
+     */
+    private Map<String, StockCode> getStockCodeMap() {
+        return this.getStockCodeList().stream()
+                .collect(Collectors.toMap(StockCode::getCode, stockCode -> stockCode));
+    }
+
 }

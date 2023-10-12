@@ -1,13 +1,13 @@
 package com.zeki.kisvolcano.domain._common.utils;
 
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
@@ -21,5 +21,5 @@ public class TimeStamped {
 
     @LastModifiedDate
     @Comment("수정 일자")
-    private LocalDateTime modifiedAt;
+    private LocalDateTime updatedAt;
 }
