@@ -1,6 +1,8 @@
 package com.zeki.kisvolcano.domain._common.web_client;
 
 
+import com.zeki.kisvolcano.exception.APIException;
+import com.zeki.kisvolcano.exception.ResponseCode;
 import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +56,11 @@ public class WebClientConnector {
                         .build())
                 .headers(httpHeaders -> httpHeaders.setAll(requestHeaders == null ? Map.of() : requestHeaders))
                 .bodyValue(requestBody == null ? Map.of() : requestBody)
-                .exchangeToMono(clientResponse -> clientResponse.toEntity(classType))
+                .exchangeToMono(clientResponse -> clientResponse.toEntity(classType)
+                        .doOnSuccess(s -> log.info("KIS API 호출 성공"))
+                        .doOnError(e -> {
+                            throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR, "KIS 통신 에러 | " + e.getMessage());
+                        }))
                 .block();
     }
 

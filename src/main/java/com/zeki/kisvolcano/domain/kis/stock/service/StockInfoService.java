@@ -89,7 +89,7 @@ public class StockInfoService {
                 StockInfo stockInfo = stockInfoMap.getOrDefault(stockCode, null);
 
                 if (stockInfo == null) {
-                    stockInfoRepository.save(StockInfo.builder()
+                    stockInfo = StockInfo.builder()
                             .name(output1.getHtsKorIsnm())
                             .code(stockCode)
                             .otherCode(output1.getStckShrnIscd())
@@ -100,7 +100,8 @@ public class StockInfoService {
                             .per(output1.getPer())
                             .pbr(output1.getPbr())
                             .eps(output1.getEps())
-                            .build());
+                            .build();
+                    stockInfoRepository.save(stockInfo);
                 } else {
                     stockInfo.updateStockInfoBuilder()
                             .otherCode(output1.getStckShrnIscd())
@@ -114,7 +115,7 @@ public class StockInfoService {
                             .build();
                 }
             } else {
-                throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR, "KIS 통신 에러" + response.getRtCd() + response.getMsg1() + response.getMsgCd());
+                throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR, "KIS 통신 에러 | " + response.getRtCd() + " " + response.getMsg1() + " " + response.getMsgCd());
             }
             /* ----- */
         }
@@ -150,7 +151,6 @@ public class StockInfoService {
      *
      * @return List<String> 종목코드 List
      */
-    @Transactional(readOnly = true)
     public List<String> getStockCodeList() {
         return stockInfoRepository.findAll().stream().map(StockInfo::getCode).toList();
     }
@@ -161,7 +161,6 @@ public class StockInfoService {
      * @param stockCodeList stockCodeList
      * @return stockInfoList
      */
-    @Transactional(readOnly = true)
     public List<StockInfo> getStockInfoList(List<String> stockCodeList) {
         return stockInfoRepository.findByCodeIn(stockCodeList);
     }
