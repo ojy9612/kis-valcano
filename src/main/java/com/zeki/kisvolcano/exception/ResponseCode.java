@@ -40,6 +40,7 @@ public enum ResponseCode {
 
     /* 409 Conflict - 클라이언트의 요청이 서버에서 충돌을 일으킨 경우 사용 */
     DUPLICATED_USER_ID(HttpStatus.CONFLICT, "409_0", "이미 존재하는 아이디입니다."),
+    DUPLICATED_KEY_IN_MAP(HttpStatus.CONFLICT, "409_1", "이미 존재하는 Key입니다."),
 
     /* 500 */
     GOOGLE_CHAT_CONNECT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500_0", "구글챗 통신 오류"),

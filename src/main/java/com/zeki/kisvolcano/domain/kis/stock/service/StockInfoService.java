@@ -3,9 +3,9 @@ package com.zeki.kisvolcano.domain.kis.stock.service;
 import com.zeki.kisvolcano.domain._common.web_client.WebClientConnector;
 import com.zeki.kisvolcano.domain._common.web_client.statics.ApiStatics;
 import com.zeki.kisvolcano.domain.kis.stock.dto.StockInfoPriceResDto;
-import com.zeki.kisvolcano.domain.kis.stock.entity.StockCode;
 import com.zeki.kisvolcano.domain.kis.stock.entity.StockInfo;
 import com.zeki.kisvolcano.domain.kis.stock.repository.StockInfoRepository;
+import com.zeki.kisvolcano.domain.kis.stock.repository.bulk.StockInfoBulkRepository;
 import com.zeki.kisvolcano.domain.kis.token.service.TokenService;
 import com.zeki.kisvolcano.exception.APIException;
 import com.zeki.kisvolcano.exception.ResponseCode;
@@ -13,16 +13,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,11 +30,17 @@ import java.util.stream.Collectors;
 public class StockInfoService {
 
     private final StockInfoRepository stockInfoRepository;
-    private final WebClientConnector webClientConnector;
+    private final StockInfoBulkRepository stockInfoBulkRepository;
+
     private final StockCodeService stockCodeService;
     private final TokenService tokenService;
 
+    private final WebClientConnector webClientConnector;
     private final ApiStatics apiStatics;
+
+    private static StockInfo ifExistDuplicateKey(StockInfo a, StockInfo b) {
+        throw new APIException(ResponseCode.DUPLICATED_KEY_IN_MAP, a.getCode() + "가 중복되었습니다.");
+    }
 
 
     /**
@@ -45,15 +50,15 @@ public class StockInfoService {
      * @param start         일봉 데이터 시작일
      * @param end           일봉 데이터 마지막일
      */
-    @Transactional
     public void upsertStockInfo(List<String> stockCodeList, LocalDate start, LocalDate end) {
+        Map<String, StockInfo> stockInfoMap = stockInfoRepository.findByCodeIn(stockCodeList).stream()
+                .collect(Collectors.toMap(
+                        StockInfo::getCode,
+                        entity -> entity,
+                        StockInfoService::ifExistDuplicateKey));
 
-        List<StockInfo> stockInfoList = stockInfoRepository.findByCodeIn(stockCodeList);
-        Map<String, StockInfo> stockInfoMap = new HashMap<>();
-        for (StockInfo stockInfo : stockInfoList) {
-            stockInfoMap.put(stockInfo.getCode(), stockInfo);
-        }
-
+        List<StockInfo> insertStockInfoList = new ArrayList<>();
+        List<StockInfo> updateStockInfoList = new ArrayList<>();
         for (String stockCode : stockCodeList) {
             log.info(stockCode + " 시작");
             /* KIS API 를 통해 주식정보를 가져옴 */
@@ -72,6 +77,15 @@ public class StockInfoService {
             reqParams.set("FID_PERIOD_DIV_CODE", "D");
             reqParams.set("FID_ORG_ADJ_PRC", "0");
 
+            String test = webClientConnector.<Map<String, String>, String>connectKisApiBuilder()
+                    .method(HttpMethod.GET)
+                    .path("/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice")
+                    .requestHeaders(reqHeaders)
+                    .requestParams(reqParams)
+                    .requestBody(null)
+                    .classType(String.class)
+                    .build().getBody();
+            
             StockInfoPriceResDto response = webClientConnector.<Map<String, String>, StockInfoPriceResDto>connectKisApiBuilder()
                     .method(HttpMethod.GET)
                     .path("/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice")
@@ -101,9 +115,9 @@ public class StockInfoService {
                             .pbr(output1.getPbr())
                             .eps(output1.getEps())
                             .build();
-                    stockInfoRepository.save(stockInfo);
+                    insertStockInfoList.add(stockInfo);
                 } else {
-                    stockInfo.updateStockInfoBuilder()
+                    boolean isUpdate = stockInfo.updateStockInfoBuilder()
                             .otherCode(output1.getStckShrnIscd())
                             .fcam(output1.getStckFcam())
                             .amount(Long.valueOf(output1.getLstnStcn()))
@@ -113,36 +127,15 @@ public class StockInfoService {
                             .pbr(output1.getPbr())
                             .eps(output1.getEps())
                             .build();
+                    if (isUpdate) updateStockInfoList.add(stockInfo);
                 }
             } else {
                 throw new APIException(ResponseCode.INTERNAL_SERVER_WEBCLIENT_ERROR, "KIS 통신 에러 | " + response.getRtCd() + " " + response.getMsg1() + " " + response.getMsgCd());
             }
             /* ----- */
         }
-    }
-
-    /**
-     * 신규 상장된 종목의 StockInfo, 일봉데이터를 넣는다.
-     * createStockInfoPrice() 함수를 통해 데이터를 넣을 수도 있지만 신규 상장된 목록을 따로 보기위해 만들었다.
-     *
-     * @deprecated (KIS에 요청하는 것이 아닌 크롤링을 통해 주가데이터를 받아올 예정)
-     */
-    @Transactional
-    @Deprecated(since = "2023/02/24")
-    public void checkNewStock() {
-        Set<String> codeSet = stockCodeService.getStockCodeList().stream().map(StockCode::getCode).collect(Collectors.toSet());
-        Set<String> infoSet = stockInfoRepository.findAll().stream().map(StockInfo::getCode).collect(Collectors.toSet());
-
-        codeSet.removeAll(infoSet);
-
-        if (codeSet.isEmpty()) {
-            log.info("신규 상장된 종목이 없습니다.");
-        } else {
-            log.info("신규 상장된 주식 수" + codeSet.size());
-        }
-        for (String s : codeSet) {
-            log.info("신규 상장된 주식 코드: " + s);
-        }
+        stockInfoBulkRepository.saveAll(insertStockInfoList);
+        stockInfoBulkRepository.updateAll(updateStockInfoList);
     }
 
 

@@ -11,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -71,11 +72,6 @@ public class StockInfo extends TimeStamped {
     @OrderBy("date desc ")
     private final List<StockPrice> stockPriceList = new ArrayList<>();
 
-    public void addStockPrice(StockPrice stockPrice) {
-        stockPrice.registerStockInfo(this);
-        this.stockPriceList.add(stockPrice);
-    }
-
     @Builder
     public StockInfo(String name, String code, String otherCode, String fcam, Long amount, String marketCapitalization, String capital, String per, String pbr, String eps) {
         this.name = name;
@@ -90,8 +86,23 @@ public class StockInfo extends TimeStamped {
         this.eps = eps;
     }
 
-    @Builder(builderMethodName = "updateStockInfoBuilder")
-    public void updateStockInfo(String otherCode, String fcam, Long amount, String marketCapitalization, String capital, String per, String pbr, String eps) {
+    public void addStockPrice(StockPrice stockPrice) {
+        stockPrice.registerStockInfo(this);
+        this.stockPriceList.add(stockPrice);
+    }
+
+    @Builder(builderMethodName = "updateStockInfoBuilder", builderClassName = "UpdateStockInfoBuilder")
+    public boolean updateStockInfo(String otherCode, String fcam, Long amount, String marketCapitalization, String capital, String per, String pbr, String eps) {
+        if (Objects.equals(otherCode, this.otherCode) &&
+                Objects.equals(fcam, this.fcam) &&
+                Objects.equals(amount, this.amount) &&
+                Objects.equals(marketCapitalization, this.marketCapitalization) &&
+                Objects.equals(capital, this.capital) &&
+                Objects.equals(per, this.per) &&
+                Objects.equals(pbr, this.pbr) &&
+                Objects.equals(eps, this.eps)) {
+            return false;
+        }
         this.otherCode = otherCode;
         this.fcam = fcam;
         this.amount = amount;
@@ -100,6 +111,8 @@ public class StockInfo extends TimeStamped {
         this.per = per;
         this.pbr = pbr;
         this.eps = eps;
+
+        return true;
     }
 
 
