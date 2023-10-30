@@ -68,3 +68,10 @@ tasks.withType(JavaCompile).configureEach {
 clean.doLast {
     file(querydslDir).deleteDir()
 }
+
+
+// subModule
+tasks.register('copyYmlFiles', Copy) {
+    from 'kis-volcano-yml'
+    into 'src/main/resources'
+}
